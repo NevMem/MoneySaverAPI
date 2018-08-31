@@ -3,3 +3,6 @@ node_modules/*
 start.json
 parse.py
 input.txt
+deploy.cmd
+deploy.rar
+public/

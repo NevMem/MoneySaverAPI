@@ -19,6 +19,8 @@ db.connect().then(() => {
         next()
     })
 
+    app.use(express.static(__dirname + '/public'))
+
     app.post('/api/login', (req, res) => {
         let login = req.body.login, password = req.body.password
         console.log(('Try to log in with login: ' + login + ' password: ' + '---//---').cyan)
