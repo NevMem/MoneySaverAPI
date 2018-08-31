@@ -87,7 +87,7 @@ db.connect().then(() => {
         }
     })
         
-    db.debug()
+    // db.debug()
 })
 .catch(err => {
     console.log(err)
