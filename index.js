@@ -81,6 +81,15 @@ db.connect().then(() => {
         }
     })
 
+    app.post('/api/remove', (req, res) => {
+        let token = req.body.token, login = req.body.login, record_id = req.body.record_id
+        db.remove(token, login, record_id).then(data => {
+            res.send(data)
+        }).catch(err => {
+            res.send({ err: err })
+        })
+    })
+
     app.listen(process.env.api_port, err => {
         if (err) {
             console.log(err)

@@ -4,6 +4,7 @@ const mongodb = require('mongodb'),
 require('dotenv').config()
 
 const MongoClient = mongodb.MongoClient
+let ObjectID = mongodb.ObjectID
 let db_url = process.env.db_url.replace('<dbuser>', process.env.db_user).replace('<dbpassword>', process.env.db_password)
 
 let db = undefined
@@ -41,6 +42,22 @@ exports.add = (token, login, date, name, wallet, value, tags) => {
             resolve('ok')
         })
         .catch(err => {
+            reject(err)
+        })
+    })
+}
+
+exports.remove = (token, login, record_id) => {
+    return new Promise((resolve, reject) => {
+        console.log(record_id)
+        console.log(token, login)
+        db.collection('data').deleteOne({ login: login, _id: new ObjectID(record_id) }).then(data => {
+            if (data.result.n == 1) {
+                resolve('ok')
+            } else {
+                reject('element was not found')    
+            }
+        }).catch(err => {
             reject(err)
         })
     })
