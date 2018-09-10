@@ -35,6 +35,12 @@ exports.get_data = (user_token, login) => {
 }
 
 exports.add = (token, login, date, name, wallet, value, tags) => {
+    date.minute = parseInt(date.minute)
+    date.hour = parseInt(date.hour)
+    date.day = parseInt(date.day)
+    date.month = parseInt(date.month)
+    date.year = parseInt(date.year)
+
     let timestamp = date.minute + date.hour * 60 + date.day * 24 * 60 + date.month * 31 * 24 * 60 + date.year * 12 * 31 * 24 * 60
     return new Promise((resolve, reject) => {
         db.collection('data').insert({ login: login, date: date, name: name, wallet: wallet, value: value, timestamp: timestamp, tags: tags }).then(data => {
