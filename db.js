@@ -43,7 +43,15 @@ exports.add = (token, login, date, name, wallet, value, tags) => {
 
     let timestamp = date.minute + date.hour * 60 + date.day * 24 * 60 + date.month * 31 * 24 * 60 + date.year * 12 * 31 * 24 * 60
     return new Promise((resolve, reject) => {
-        db.collection('data').insert({ login: login, date: date, name: name, wallet: wallet, value: value, timestamp: timestamp, tags: tags }).then(data => {
+        db.collection('data').insert({ 
+            login: login, 
+            date: date, 
+            name: name, 
+            wallet: wallet, 
+            value: value, 
+            timestamp: timestamp, 
+            tags: tags 
+        }).then(data => {
             console.log(data)
             resolve('ok')
         })
@@ -64,6 +72,33 @@ exports.remove = (token, login, record_id) => {
                 reject('element was not found')    
             }
         }).catch(err => {
+            reject(err)
+        })
+    })
+}
+
+exports.edit = (token, login, id, date, name, wallet, value, tags) => {
+    date.minute = parseInt(date.minute)
+    date.hour = parseInt(date.hour)
+    date.day = parseInt(date.day)
+    date.month = parseInt(date.month)
+    date.year = parseInt(date.year)
+    let timestamp = date.minute + date.hour * 60 + date.day * 24 * 60 + date.month * 31 * 24 * 60 + date.year * 12 * 31 * 24 * 60
+    return new Promise((resolve, reject) => {    
+        console.log(token, login, id, date, name, wallet, value, tags)
+        db.collection('data').updateOne({_id: new ObjectID(id)}, { $set: {
+            login: login, 
+            date: date, 
+            name: name, 
+            wallet: wallet, 
+            value: value, 
+            timestamp: timestamp, 
+            tags: tags 
+        }}).then(data => {
+            // console.log(data)
+            resolve('edited')
+        }).catch(err => {
+            console.log(err)
             reject(err)
         })
     })

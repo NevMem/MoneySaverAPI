@@ -35,6 +35,28 @@ db.connect().then(() => {
         })
     })
 
+    app.post('/api/edit', (req, res) => {
+        let token = req.body.token, 
+            date = req.body.date, 
+            name = req.body.name, 
+            value = req.body.value, 
+            wallet = req.body.wallet, 
+            login = req.body.login, 
+            tags = req.body.tags, 
+            id = req.body.id
+        db.edit(token, login, id, date, name, wallet, value, tags)
+        .then(data => {
+            if (data.err) {
+                res.send({ err: data.err })
+            } else {
+                res.send({ msg: data })
+            }
+        }).catch(err => {
+            console.log(err)
+            res.send({ err: err })
+        })
+    })
+
     app.post('/api/add', (req, res) => {
         let token = req.body.token, 
             date = req.body.date, 
