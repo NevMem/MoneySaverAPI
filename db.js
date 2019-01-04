@@ -2,6 +2,7 @@ const mongodb = require('mongodb'),
     jwt = require('jsonwebtoken'), 
     fs = require('fs')
 require('dotenv').config()
+require('colors')
 
 const MongoClient = mongodb.MongoClient
 let ObjectID = mongodb.ObjectID
@@ -23,8 +24,12 @@ exports.connect = () => {
 }
 
 exports.get_data = (user_token, login) => {
+    console.log('Start loading data')
+    let startTime = Date.now()
     return new Promise((resolve, reject) => {
         db.collection('data').aggregate([ { $match: { login: login } }, { $sort: { timestamp: -1 } } ]).toArray((err, data) => {
+            fs.writeFileSync('buffer.txt', JSON.stringify(err), 'utf-8')
+            console.log(('Loading from MongoDB consumed: ' + (Date.now() - startTime) + ' ms').cyan)
             if (err) {
                 reject(err)
             } else {
