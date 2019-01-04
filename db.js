@@ -139,22 +139,3 @@ clearAll = () => {
         })
     })
 }
-
-fillDefault = () => {
-    return new Promise((resolve, reject) => {
-        let data = JSON.parse(fs.readFileSync('start.json', 'utf-8'))
-        console.log(data.length)
-        db.collection('data').insertMany(data).then(res => {
-            console.log(res.result.n + ' was inserted')
-            resolve()
-        })
-    })
-}
-
-exports.debug = () => {
-    clearAll().then(() => {
-        return fillDefault()
-    }).then(() => {
-        console.log('here')
-    })
-}
