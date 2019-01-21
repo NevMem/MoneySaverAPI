@@ -93,12 +93,19 @@ db.connect().then(() => {
         if (!token) {
             res.send({ err: 'Token is ivalid or empty. Please relogin' })
         } else {
-            db.get_data(token, login).then(data => {
-                res.send(data)
-            })
-            .catch(err => {
-                console.log(err)
-                res.send({ err: err })
+            jwt.verify(token, process.env.jwt_secret, (err, decoded) => {
+                if (err) {
+                    res.send({ err: 'Token is ivalid or empty. Please relogin' })
+                    return
+                } else {
+                    db.get_data(token, login).then(data => {
+                        res.send(data)
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        res.send({ err: err })
+                    })
+                }
             })
         }
     })

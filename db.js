@@ -28,7 +28,6 @@ exports.get_data = (user_token, login) => {
     let startTime = Date.now()
     return new Promise((resolve, reject) => {
         db.collection('data').aggregate([ { $match: { login: login } }, { $sort: { timestamp: -1 } } ]).toArray((err, data) => {
-            fs.writeFileSync('buffer.txt', JSON.stringify(err), 'utf-8')
             console.log(('Loading from MongoDB consumed: ' + (Date.now() - startTime) + ' ms').cyan)
             if (err) {
                 reject(err)
