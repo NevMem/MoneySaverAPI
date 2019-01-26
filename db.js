@@ -61,6 +61,8 @@ exports.add = (token, login, date, name, wallet, value, tags) => {
     }
 
     let timestamp = date.minute + date.hour * 60 + date.day * 24 * 60 + date.month * 31 * 24 * 60 + date.year * 12 * 31 * 24 * 60
+    if (value > 0)
+        value = -value
     return new Promise((resolve, reject) => {
         db.collection('data').insert({ 
             login: login, 

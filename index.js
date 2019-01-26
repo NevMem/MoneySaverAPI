@@ -7,6 +7,9 @@ const express = require('express'),
 require('colors')
 require('dotenv').config()
 
+const defaultTags = [ 'Еда', 'Транспорт', 'Медиа', 'Проживание', 'Электроника', 'Одежда', 'Линзы', 'Посуда', 'Химия', 'Связь', 'Разное' ]
+const defaultWallets = [ 'Наличные', 'Сбербанк', 'ВТБ', 'АкБарс' ]
+
 db.connect().then(() => {
     let app = express()
 
@@ -56,6 +59,21 @@ db.connect().then(() => {
             res.send({ err: err })
         })
     })
+
+    const getTags = (req, res) => {
+        let { token, login } = req.body
+        res.send(defaultTags)
+    }
+
+    app.post('/api/tags', (req, res) => getTags(req, res))
+    app.get('/api/tags', (req, res) => getTags(req, res))
+
+    const getWallets = (req, res) => {
+        res.send(defaultWallets)
+    }
+
+    app.post('/api/wallets', (req, res) => getWallets(req, res))
+    app.get('/api/wallets', (req, res) => getWallets(req, res))
 
     app.post('/api/add', (req, res) => {
         let token = req.body.token, 
