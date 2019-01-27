@@ -160,8 +160,6 @@ db.connect().then(() => {
             } else {
                 db.get_data(token, login).then(data => {
                     const info = analyze(data)
-                    
-                    console.log(info)
                     res.send(info)
                 }).catch(err => {
                     console.log(err)
