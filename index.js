@@ -143,7 +143,7 @@ db.connect().then(() => {
         return info
     }
 
-    const average = (req, res) => {
+    const info = (req, res) => {
         let { token, login } = req.body
         if (!token || !login) {
             token = req.query.token
@@ -160,7 +160,10 @@ db.connect().then(() => {
             } else {
                 db.get_data(token, login).then(data => {
                     const info = analyze(data)
-                    res.send(info)
+                    res.send({ 
+                        type: 'ok',
+                        info: info,
+                    })
                 }).catch(err => {
                     console.log(err)
                     res.send({ type: 'error', err: 'Some error occurred on server' })
@@ -169,8 +172,8 @@ db.connect().then(() => {
         })
     }
 
-    app.post('/api/info', (req, res) => average(req, res))
-    app.get('/api/info', (req, res) => average(req, res))
+    app.post('/api/info', (req, res) => info(req, res))
+    app.get('/api/info', (req, res) => info(req, res))
 
     app.post('/api/data', (req, res) => {
         let token = req.body.token
