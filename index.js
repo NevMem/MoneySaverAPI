@@ -2,7 +2,8 @@ const express = require('express'),
     mongodb = require('mongodb'), 
     bParser = require('body-parser'), 
     jwt = require('jsonwebtoken'), 
-    db = require('./db')
+    db = require('./db'),
+    utils = require('./utils')
 
 require('colors')
 require('dotenv').config()
@@ -103,6 +104,75 @@ db.connect().then(() => {
             res.send({ err: 'Token is ivalid or empty. Please relogin' })
         }
     })
+
+    const analyze = (data) => {
+        let info = {
+            sum: 0,
+            amountOfDays: 0,
+            average: 0,
+        }
+
+        for (let i = 0; i != data.length; ++i) {
+            info.sum += Math.abs(data[i].value)
+        }
+
+        let differentDays = new Set
+
+        let min_date = Object.assign({}, data[0].date)
+        let max_date = Object.assign({}, data[0].date)
+        for (let i = 0; i !== data.length; ++i) {
+            if (utils.__is_before(data[i].date, min_date))
+                min_date = Object.assign({}, data[i].date)
+            if (utils.__is_before(max_date, data[i].date))
+                max_date = Object.assign({}, data[i].date)
+        }
+        if (!utils.__is_to_day_equal(min_date, max_date)) {
+            let this_day = max_date
+            while (utils.__is_before(min_date, this_day)) {
+                // let dayCode = codeDay(this_day)                    
+                let encoded = this_day.year * 31 * 12 + this_day.month * 31 + this_day.day
+                differentDays.add(encoded)    
+                this_day = utils.__get_prev_day(this_day)
+            }
+            differentDays.add(min_date)
+        }
+
+        info.amountOfDays = differentDays.size
+        info.average = ((info.sum / info.amountOfDays * 100) | 0) / 100.0
+
+        return info
+    }
+
+    const average = (req, res) => {
+        let { token, login } = req.body
+        if (!token || !login) {
+            token = req.query.token
+            login = req.query.login
+        }
+        if (!token || !login) {
+            res.send({ err: 'Login or token is empty' })
+            return
+        }
+
+        jwt.verify(token, process.env.jwt_secret, (err, decoded) => {
+            if (err) {
+                res.send({ type: 'error', err: 'Token is invalid' })
+            } else {
+                db.get_data(token, login).then(data => {
+                    const info = analyze(data)
+                    
+                    console.log(info)
+                    res.send(info)
+                }).catch(err => {
+                    console.log(err)
+                    res.send({ type: 'error', err: 'Some error occurred on server' })
+                })
+            }
+        })
+    }
+
+    app.post('/api/info', (req, res) => average(req, res))
+    app.get('/api/info', (req, res) => average(req, res))
 
     app.post('/api/data', (req, res) => {
         let token = req.body.token
