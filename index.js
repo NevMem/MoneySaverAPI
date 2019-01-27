@@ -107,13 +107,13 @@ db.connect().then(() => {
 
     const analyze = (data) => {
         let info = {
-            sum: 0,
+            totalSpend: 0,
             amountOfDays: 0,
             average: 0,
         }
 
         for (let i = 0; i != data.length; ++i) {
-            info.sum += Math.abs(data[i].value)
+            info.totalSpend += Math.abs(data[i].value)
         }
 
         let differentDays = new Set
@@ -138,7 +138,7 @@ db.connect().then(() => {
         }
 
         info.amountOfDays = differentDays.size
-        info.average = ((info.sum / info.amountOfDays * 100) | 0) / 100.0
+        info.average = ((info.totalSpend / info.amountOfDays * 100) | 0) / 100.0
 
         return info
     }
