@@ -137,6 +137,7 @@ db.connect().then(() => {
             differentDays.add(min_date)
         }
 
+        info.totalSpend = (info.totalSpend * 100 | 0) / 100.0
         info.amountOfDays = differentDays.size
         info.average = ((info.totalSpend / info.amountOfDays * 100) | 0) / 100.0
 
