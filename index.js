@@ -3,7 +3,8 @@ const express = require('express'),
     bParser = require('body-parser'), 
     jwt = require('jsonwebtoken'), 
     db = require('./db'),
-    utils = require('./utils')
+    utils = require('./utils'),
+    fs = require('fs')
 
 require('colors')
 require('dotenv').config()
@@ -105,11 +106,22 @@ db.connect().then(() => {
         }
     })
 
-    const analyze = (data) => {
+    /**
+     * Function which provides analyzing functionality for the user
+     * @param data - Full records list
+     * @param {Object} options - options for request
+     *      if options.daysDescription is set then in response will be daySum object,
+     *      which provides access to spended sum per day due tracked period
+     */
+    const analyze = (data, options) => {
         let info = {
             totalSpend: 0,
             amountOfDays: 0,
             average: 0,
+        }
+
+        if (options.daysDescription) {
+            info.daySum = {}
         }
 
         for (let i = 0; i != data.length; ++i) {
@@ -117,6 +129,7 @@ db.connect().then(() => {
         }
 
         let differentDays = new Set
+        let daySum = {}
 
         let min_date = Object.assign({}, data[0].date)
         let max_date = Object.assign({}, data[0].date)
@@ -128,13 +141,42 @@ db.connect().then(() => {
         }
         if (!utils.__is_to_day_equal(min_date, max_date)) {
             let this_day = max_date
-            while (utils.__is_before(min_date, this_day)) {
-                // let dayCode = codeDay(this_day)                    
+            while (utils.__is_before(min_date, this_day)) {              
                 let encoded = this_day.year * 31 * 12 + this_day.month * 31 + this_day.day
-                differentDays.add(encoded)    
+                differentDays.add(encoded)
+                if (options.daysDescription)
+                    if (!daySum[utils.codeDay(this_day)])
+                        daySum[utils.codeDay(this_day)] = 0  
                 this_day = utils.__get_prev_day(this_day)
             }
             differentDays.add(min_date)
+            if (options.daysDescription)
+                if (!daySum[utils.codeDay(min_date)])
+                    daySum[utils.codeDay(min_date)] = 0  
+        }
+
+        if (options.daysDescription) {
+            for (let i = 0; i != data.length; ++i) {
+                const codedDay = utils.codeDay(data[i].date)
+                daySum[codedDay] += Math.abs(data[i].value)
+            }
+            let buffer = []
+            for (const el in daySum)
+                buffer.push([ el, daySum[el] ])
+            buffer.sort((first, second) => {
+                let first_buffer = first[0].split('-')
+                let second_buffer = second[0].split('-')
+                let first_date = { year: parseInt(first_buffer[0], 10), month: parseInt(first_buffer[1], 10), day: parseInt(first_buffer[2], 10) }
+                let second_date = { year: parseInt(second_buffer[0], 10), month: parseInt(second_buffer[1], 10), day: parseInt(second_buffer[2], 10) }
+                if (utils.__is_before(first_date, second_date))
+                    return -1
+                if (utils.__is_to_day_equal(first_date, second_date))
+                    return 0
+                return 1
+            })
+            for (let i = 0; i !== buffer.length; ++i) {
+                info.daySum[buffer[i][0]] = buffer[i][1]
+            }
         }
 
         info.totalSpend = (info.totalSpend * 100 | 0) / 100.0
@@ -146,9 +188,14 @@ db.connect().then(() => {
 
     const info = (req, res) => {
         let { token, login } = req.body
+        let options = {}
+        if (req.body.daysDescription === 'true')
+            options.daysDescription = true
         if (!token || !login) {
             token = req.query.token
             login = req.query.login
+            if (req.query.daysDescription === 'true')
+                options.daysDescription = true
         }
         if (!token || !login) {
             res.send({ err: 'Login or token is empty' })
@@ -160,7 +207,7 @@ db.connect().then(() => {
                 res.send({ type: 'error', err: 'Token is invalid' })
             } else {
                 db.get_data(token, login).then(data => {
-                    const info = analyze(data)
+                    const info = analyze(data, options)
                     res.send({ 
                         type: 'ok',
                         info: info,
