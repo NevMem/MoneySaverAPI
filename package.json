@@ -9,7 +9,6 @@
   "author": "NevMem",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^3.0.0",
     "body-parser": "^1.18.3",
     "colors": "^1.3.2",
     "dotenv": "^6.0.0",
