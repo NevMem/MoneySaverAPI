@@ -107,17 +107,46 @@ db.connect().then(() => {
     })
 
     /**
+     * 
+     * @param {float} value - float value, which will be beautified
+     * floors float to 2 digits after comma
+     */
+    const beautifyFloat = value => (value * 100 | 0) / 100.
+
+    /**
      * Function which provides analyzing functionality for the user
      * @param data - Full records list
      * @param {Object} options - options for request
      *      if options.daysDescription is set then in response will be daySum object,
      *      which provides access to spended sum per day due tracked period
+     * 
+     *      info.totalSpend - total spending through all time
+     *      info.average - average in day spending through all time
+     *      info.amountOfDays - total count ofDays
+     * 
+     *      only if options.info30 specified
+     *          info.sum30Days - sum in last 30 days(or less if tracked less then 30 days)
+     *          info.average30Days - average in day spending in last 30 days(or less if tracked less then 30 days)
+     * 
+     *      only if options.info7 specified
+     *          info.sum7Days - sum in last 7 days(or less if tracked less then 30 days)
+     *          info.average7Days - average in day spending in last 7 days(or less if tracked less then 30 days)
      */
     const analyze = (data, options) => {
         let info = {
             totalSpend: 0,
             amountOfDays: 0,
             average: 0,
+        }
+
+        if (options.info30) {
+            info.sum30Days = 0
+            info.average30Days = 0
+        }
+
+        if (options.info7) {
+            info.sum7Days = 0
+            info.average7Days = 0
         }
 
         if (options.daysDescription) {
@@ -144,18 +173,18 @@ db.connect().then(() => {
             while (utils.__is_before(min_date, this_day)) {              
                 let encoded = this_day.year * 31 * 12 + this_day.month * 31 + this_day.day
                 differentDays.add(encoded)
-                if (options.daysDescription)
+                if (options.daysDescription || options.info7 || options.info30)
                     if (!daySum[utils.codeDay(this_day)])
                         daySum[utils.codeDay(this_day)] = 0  
                 this_day = utils.__get_prev_day(this_day)
             }
             differentDays.add(min_date)
-            if (options.daysDescription)
+            if (options.daysDescription || options.info7 || options.info30)
                 if (!daySum[utils.codeDay(min_date)])
                     daySum[utils.codeDay(min_date)] = 0  
         }
 
-        if (options.daysDescription) {
+        if (options.daysDescription || options.info30 || options.info7) {
             for (let i = 0; i != data.length; ++i) {
                 const codedDay = utils.codeDay(data[i].date)
                 daySum[codedDay] += Math.abs(data[i].value)
@@ -174,8 +203,28 @@ db.connect().then(() => {
                     return 0
                 return 1
             })
-            for (let i = 0; i !== buffer.length; ++i) {
-                info.daySum[buffer[i][0]] = buffer[i][1]
+            if (options.daysDescription) {
+                for (let i = 0; i !== buffer.length; ++i) {
+                    info.daySum[buffer[i][0]] = buffer[i][1]
+                }
+            }
+            if (options.info30) {
+                let count = 0
+                for (let i = Math.max(0, buffer.length - 30); i != buffer.length; ++i) {
+                    info.sum30Days += buffer[i][1]
+                    count += 1
+                }
+                if (count !== 0)
+                    info.average30Days = beautifyFloat(info.sum30Days / count)
+            }
+            if (options.info7) {
+                let count = 0
+                for (let i = Math.max(0, buffer.length - 7); i != buffer.length; ++i) {
+                    info.sum7Days += buffer[i][1]
+                    count += 1
+                }
+                if (count !== 0)
+                    info.average7Days = beautifyFloat(info.sum7Days / count)
             }
         }
 
@@ -191,11 +240,19 @@ db.connect().then(() => {
         let options = {}
         if (req.body.daysDescription === 'true')
             options.daysDescription = true
+        if (req.body.info7 === 'true')
+            options.info7 = true
+        if (req.body.info30 === 'true')
+            options.info30 = true
         if (!token || !login) {
             token = req.query.token
             login = req.query.login
             if (req.query.daysDescription === 'true')
                 options.daysDescription = true
+            if (req.query.info7 === 'true')
+                options.info7 = true
+            if (req.query.info30 === 'true')
+                options.info30 = true
         }
         if (!token || !login) {
             res.send({ err: 'Login or token is empty' })
