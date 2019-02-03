@@ -49,17 +49,24 @@ db.connect().then(() => {
             login = req.body.login, 
             tags = req.body.tags, 
             id = req.body.id
-        db.edit(token, login, id, date, name, wallet, value, tags)
-        .then(data => {
-            if (data.err) {
-                res.send({ err: data.err })
-            } else {
-                res.send({ msg: data })
-            }
-        }).catch(err => {
-            console.log(err)
-            res.send({ err: err })
-        })
+        const validation = utils.validateRecord({ name, date, value, wallet, login, tags })
+        if (validation !== null) {
+            res.send({ type: 'error', error: validation })
+        } else {
+            if (value > 0)
+                value = -value
+            db.edit(token, login, id, date, name, wallet, value, tags)
+            .then(data => {
+                if (data.err) {
+                    res.send({ type: 'error', error: data.err })
+                } else {
+                    res.send({ type: 'ok' })
+                }
+            }).catch(err => {
+                console.log(err)
+                res.send({ type: 'error', error: err })
+            })
+        }
     })
 
     const getTags = (req, res) => {
@@ -86,23 +93,27 @@ db.connect().then(() => {
             login = req.body.login, 
             tags = req.body.tags
 
-        if (token) {
-            jwt.verify(token, process.env.jwt_secret, (err, decoded) => {
-                if (err) {
-                    res.send({ err: 'Token is ivalid or empty. Please relogin' })
-                } else {
-                    console.log(decoded)
-                    db.add(token, login, date, name, wallet, value, tags)
-                    .then(data => {
-                        res.send({ data })
-                    })
-                    .catch(err => {
-                        res.send({ err: err })
-                    })
-                }
-            })
+        const validation = utils.validateRecord({ name, date, value, wallet, login, tags })
+        if (validation !== null) {
+            res.send({ type: 'error', error: validation })
         } else {
-            res.send({ err: 'Token is ivalid or empty. Please relogin' })
+            if (token) {
+                jwt.verify(token, process.env.jwt_secret, (err, decoded) => {
+                    if (err) {
+                        res.send({ type: 'error', error: 'Token is ivalid or empty. Please relogin' })
+                    } else {
+                        db.add(token, login, date, name, wallet, value, tags)
+                        .then(data => {
+                            res.send({ type: 'ok', data: data })
+                        })
+                        .catch(err => {
+                            res.send({ type: 'error', error: err })
+                        })
+                    }
+                })
+            } else {
+                res.send({ type: 'error', error: 'Token is ivalid or empty. Please relogin' })
+            }
         }
     })
 

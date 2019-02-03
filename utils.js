@@ -70,3 +70,28 @@ exports.__get_prev_day = from => {
         return current
     }
 }
+
+exports.validateRecord = (record) => {
+    if (record === undefined) return 'record is undefined'
+    if (record.name === undefined || record.name.length == 0) return 'record name is undefined or empty'
+    if (record.login === undefined || record.login.length == 0) return 'record owner login is undefined or empty'
+    
+    if (record.tags === undefined || typeof(record.tags) != 'object' || typeof(record.tags.length) != 'number')
+        return 'record tags is empty ot it is not an array'
+    else if (record.tags.length > 1) return 'record tags array must have only one element'
+    else if (record.tags.length == 0) return 'record tags array must have at least one element'
+
+    if (record.wallet === undefined || record.wallet.length == 0) return 'record wallet is undefined or empty'
+    if (record.wallet === undefined || record.wallet.length == 0) return 'record wallet is undefined or empty'
+    if (record.value === undefined || !(typeof(record.value) == typeof(0))) return 'record value is empty or is not in int type'
+    
+    if (record.date === undefined || typeof(record.date) !== 'object')
+        return 'record date is not an object or undefined'
+    if (typeof(record.date.year) !== 'number') return 'record date year is not of type number'
+    if (typeof(record.date.month) !== 'number') return 'record date month is not of type number'
+    if (typeof(record.date.day) !== 'number') return 'record date day is not of type number'
+    if (typeof(record.date.hour) !== 'number') return 'record date hour is not of type number'
+    if (typeof(record.date.minute) !== 'number') return 'record date minute is not of type number'
+
+    return null
+}
