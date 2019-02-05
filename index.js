@@ -48,14 +48,15 @@ db.connect().then(() => {
             wallet = req.body.wallet, 
             login = req.body.login, 
             tags = req.body.tags, 
-            id = req.body.id
-        const validation = utils.validateRecord({ name, date, value, wallet, login, tags })
+            id = req.body.id,
+            daily = req.body.daily
+        const validation = utils.validateRecord({ name, date, value, wallet, login, tags, daily })
         if (validation !== null) {
             res.send({ type: 'error', error: validation })
         } else {
             if (value > 0)
                 value = -value
-            db.edit(token, login, id, date, name, wallet, value, tags)
+            db.edit(token, login, id, date, name, wallet, value, tags, daily)
             .then(data => {
                 if (data.err) {
                     res.send({ type: 'error', error: data.err })
@@ -91,9 +92,10 @@ db.connect().then(() => {
             value = req.body.value, 
             wallet = req.body.wallet, 
             login = req.body.login, 
-            tags = req.body.tags
+            tags = req.body.tags,
+            daily = req.body.daily
 
-        const validation = utils.validateRecord({ name, date, value, wallet, login, tags })
+        const validation = utils.validateRecord({ name, date, value, wallet, login, tags, daily })
         if (validation !== null) {
             res.send({ type: 'error', error: validation })
         } else {
@@ -102,7 +104,7 @@ db.connect().then(() => {
                     if (err) {
                         res.send({ type: 'error', error: 'Token is ivalid or empty. Please relogin' })
                     } else {
-                        db.add(token, login, date, name, wallet, value, tags)
+                        db.add(token, login, date, name, wallet, value, tags, daily)
                         .then(data => {
                             res.send({ type: 'ok', data: data })
                         })

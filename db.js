@@ -38,7 +38,7 @@ exports.get_data = (user_token, login) => {
     })
 }
 
-exports.add = (token, login, date, name, wallet, value, tags) => {
+exports.add = (token, login, date, name, wallet, value, tags, daily) => {
     if (date) {
         date.minute = parseInt(date.minute)
         date.hour = parseInt(date.hour)
@@ -71,7 +71,8 @@ exports.add = (token, login, date, name, wallet, value, tags) => {
             wallet: wallet, 
             value: value, 
             timestamp: timestamp, 
-            tags: tags 
+            tags: tags,
+            daily: daily
         }).then(data => {
             console.log(data)
             resolve('ok')
@@ -98,7 +99,7 @@ exports.remove = (token, login, record_id) => {
     })
 }
 
-exports.edit = (token, login, id, date, name, wallet, value, tags) => {
+exports.edit = (token, login, id, date, name, wallet, value, tags, daily) => {
     date.minute = parseInt(date.minute)
     date.hour = parseInt(date.hour)
     date.day = parseInt(date.day)
@@ -114,7 +115,8 @@ exports.edit = (token, login, id, date, name, wallet, value, tags) => {
             wallet: wallet, 
             value: value, 
             timestamp: timestamp, 
-            tags: tags 
+            tags: tags,
+            daily: daily
         }}).then(data => {
             // console.log(data)
             resolve('edited')
