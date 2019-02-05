@@ -84,6 +84,7 @@ exports.validateRecord = (record) => {
     if (record.wallet === undefined || record.wallet.length == 0) return 'record wallet is undefined or empty'
     if (record.wallet === undefined || record.wallet.length == 0) return 'record wallet is undefined or empty'
     if (record.value === undefined || !(typeof(record.value) == typeof(0))) return 'record value is empty or is not in int type'
+    if (record.daily === undefined || typeof(record.daily) != 'boolean') return 'record daily is empty or doesn\'t have boolean type'
     
     if (record.date === undefined || typeof(record.date) !== 'object')
         return 'record date is not an object or undefined'
