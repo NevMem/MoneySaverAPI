@@ -7,3 +7,4 @@ deploy.cmd
 deploy.rar
 public/
 test.js
+package-lock.json

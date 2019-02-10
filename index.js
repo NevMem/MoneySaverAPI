@@ -4,7 +4,8 @@ const express = require('express'),
     jwt = require('jsonwebtoken'), 
     db = require('./db'),
     utils = require('./utils'),
-    fs = require('fs')
+    fs = require('fs'),
+    compression = require('compression')
 
 require('colors')
 require('dotenv').config()
@@ -15,6 +16,7 @@ const defaultWallets = [ 'Наличные', 'Сбербанк', 'ВТБ', 'Ак
 db.connect().then(() => {
     let app = express()
 
+    app.use(compression({ level: 7 }))
     app.use(bParser.json())
     app.use(bParser.urlencoded({ extended: true }))
 
