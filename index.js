@@ -81,6 +81,10 @@ db.connect().then(() => {
 
     const getTags = (req, res) => {
         let { token, login } = req.body
+        if (token === undefined || login === undefined) {
+            token = req.query.token
+            login = req.query.login
+        }
         db.tags(token, login)
             .then(data => {
                 res.send({
@@ -122,6 +126,52 @@ db.connect().then(() => {
                 })
             })
     })
+
+    app.post('/api/createTemplate', (req, res) => {
+        const { token, login, name, value, tag, wallet } = req.body
+        let template = {
+            name, value, wallet, tags: [tag]
+        }
+        const validation = utils.validateTemplate(template)
+        if (validation !== null) {
+            res.send({
+                type: 'error',
+                error: validation,
+            })
+        } else {
+            db.createTemplate(token, login, template)
+                .then(() => {
+                    res.send({ type: 'ok' })
+                })
+                .catch(err => [
+                    re.send({ type: 'error', error: err })
+                ])
+        }
+    })
+
+    const getTemplates = (req, res) => {
+        let { token, login } = req.body
+        if (token === undefined || login === undefined) {
+            token = req.query.token
+            login = req.query.login
+        }
+        db.templates(token, login)
+            .then(data => {
+                res.send({
+                    type: 'ok',
+                    data: data,
+                })
+            })
+            .catch(err => {
+                res.send({
+                    type: 'error',
+                    error: err
+                })
+            })
+    }
+
+    app.get('/api/templates', (req, res) => getTemplates(req, res))
+    app.post('/api/templates', (req, res) => getTemplates(req, res))
 
     app.post('/api/add', (req, res) => {
         let token = req.body.token, 

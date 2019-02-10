@@ -124,3 +124,19 @@ exports.validateRecord = (record) => {
 
     return null
 }
+
+exports.validateTemplate = (template) => {
+    if (template === undefined) return 'template is undefined'
+    if (template.name === undefined || template.name.length == 0) return 'template name is undefined or empty'
+    
+    if (template.tags === undefined || typeof(template.tags) != 'object' || typeof(template.tags.length) != 'number')
+        return 'template tags is empty ot it is not an array'
+    else if (template.tags.length > 1) return 'template tags array must have only one element'
+    else if (template.tags.length == 0) return 'template tags array must have at least one element'
+
+    if (template.wallet === undefined || template.wallet.length == 0) return 'template wallet is undefined or empty'
+    if (template.wallet === undefined || template.wallet.length == 0) return 'template wallet is undefined or empty'
+    if (template.value === undefined || !(typeof(template.value) == typeof(0))) return 'template value is empty or is not in int type'
+
+    return null
+}

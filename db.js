@@ -175,6 +175,61 @@ exports.addTag = (token, login, tagName) => {
     })    
 }
 
+function addTemplate(db, login, template) {
+    return new Promise((resolve, reject) => {
+        db.collection('users').findOneAndUpdate({ login: login }, { $push: { templates: template } })
+            .then(info => {
+                if (info.ok === 1)
+                    resolve()
+                else
+                    reject('Error ocurred, please try later')
+            })
+            .catch(err => {
+                reject(err + '')
+            })
+    })
+}
+
+exports.createTemplate = (token, login, template) => {
+    return new Promise((resolve, reject) => {
+        checkToken(token, login)
+            .then(() => {
+                return addTemplate(db, login, template)
+            })
+            .then(() => resolve())
+            .catch(err => reject(err))
+    })
+}
+
+function getUserTemplates(db, login) {
+    return new Promise((resolve, reject) => {
+        db.collection('users').findOne({ login: login }, { projection: { templates: 1 } })
+            .then(data => {
+                if (typeof(data.templates) !== 'object') {
+                    resolve([])
+                } else {
+                    resolve(data.templates)
+                }
+            })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}
+
+exports.templates = (token, login) => {
+    return new Promise((resolve, reject) => {
+        checkToken(token, login)
+            .then(() => getUserTemplates(db, login))
+            .then((data) => {
+                resolve(data)
+            })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}
+
 exports.edit = (token, login, id, date, name, wallet, value, tags, daily) => {
     date.minute = parseInt(date.minute)
     date.hour = parseInt(date.hour)
