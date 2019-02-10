@@ -81,7 +81,19 @@ db.connect().then(() => {
 
     const getTags = (req, res) => {
         let { token, login } = req.body
-        res.send(defaultTags)
+        db.tags(token, login)
+            .then(data => {
+                res.send({
+                    type: 'ok',
+                    data: data
+                })
+            })
+            .catch(err => {
+                res.send({
+                    type: 'error',
+                    error: err
+                })
+            })
     }
 
     app.post('/api/tags', (req, res) => getTags(req, res))
@@ -93,6 +105,23 @@ db.connect().then(() => {
 
     app.post('/api/wallets', (req, res) => getWallets(req, res))
     app.get('/api/wallets', (req, res) => getWallets(req, res))
+
+    app.post('/api/addTag', (req, res) => {
+        const { token, login, tagName } = req.body
+        db.addTag(token, login, tagName)
+            .then(data => {
+                res.send({
+                    type: 'ok',
+                    data: data,
+                })
+            })
+            .catch(err => {
+                res.send({
+                    type: 'error',
+                    error: err,
+                })
+            })
+    })
 
     app.post('/api/add', (req, res) => {
         let token = req.body.token, 

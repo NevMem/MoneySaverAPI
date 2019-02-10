@@ -10,6 +10,19 @@ let db_url = process.env.db_url.replace('<dbuser>', process.env.db_user).replace
 
 let db = undefined
 
+async function checkToken(token, login) {
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, process.env.jwt_secret, (err, decoded) => {
+            if (err) reject('token is invalid')
+            else {
+                if (decoded.login === login)
+                    resolve()
+                else reject('token is invalid')
+            }
+        })
+    })
+}
+
 exports.connect = () => {
     return new Promise((resolve, reject) => {
         MongoClient.connect(db_url, { useNewUrlParser: true }, (err, client) => {
@@ -97,6 +110,69 @@ exports.remove = (token, login, record_id) => {
             reject(err)
         })
     })
+}
+
+function getUserTags(db, login) {
+    return new Promise((resolve, reject) => {
+        db.collection('users').findOne({ login: login }, { projection: { tags: 1 } })
+            .then(data => {
+                if (typeof(data.tags) !== 'object') {
+                    resolve([])
+                } else {
+                    resolve(data.tags)
+                }
+            })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}
+
+exports.tags = (token, login) => {
+    return new Promise((resolve, reject) => {
+        checkToken(token, login)
+            .then(() => getUserTags(db, login))
+            .then((data) => {
+                resolve(data)
+            })
+            .catch(err => {
+                reject(err)
+            })
+    })
+}
+
+function addTag(db, login, tagName) {
+    return new Promise((resolve, reject) => {
+        if (typeof(tagName) !== 'string' || tagName.length == 0) {
+            reject('invalid tag name')
+        } else {
+            db.collection('users').findOneAndUpdate({ login: login }, { $push: { tags: tagName } })
+                .then(data => {
+                    resolve(data)
+                })
+                .catch(err => {
+                    reject()
+                })
+        }
+    })
+}
+
+exports.addTag = (token, login, tagName) => {
+    return new Promise((resolve, reject) => {
+        checkToken(token, login)
+            .then(() => {
+                return addTag(db, login, tagName)
+            })
+            .then(data => {
+                if (data.ok === 1)
+                    resolve('Tag was successfully added, possibly you will need to reload the page')
+                else
+                    reject('error ocurred, please try later')
+            })
+            .catch(err => {
+                reject(err)
+            })
+    })    
 }
 
 exports.edit = (token, login, id, date, name, wallet, value, tags, daily) => {
