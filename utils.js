@@ -1,3 +1,6 @@
+const MIN_YEAR = 2018
+const MAX_YEAR = 2019
+
 exports.codeDay = (date) => {
     return date.year + '-' + date.month + '-' + date.day
 }
@@ -43,6 +46,19 @@ const __days_in_month = {
     10: 31, // Oct
     11: 30, // Nov
     12: 31 // Dec
+}
+
+
+/**
+ * 
+ * @param {Number} year 
+ * @param {Number} month
+ * Returns amount of days in this month at this year 
+ */
+const getDaysInMonth = (year, month) => {
+    if (month == 2)
+        return __days_in_month[month] + __is_leap_year(year)
+    return __days_in_month[month]
 }
 
 exports.__get_prev_day = from => {
@@ -93,6 +109,18 @@ exports.validateRecord = (record) => {
     if (typeof(record.date.day) !== 'number') return 'record date day is not of type number'
     if (typeof(record.date.hour) !== 'number') return 'record date hour is not of type number'
     if (typeof(record.date.minute) !== 'number') return 'record date minute is not of type number'
+
+    /* Date checking */
+
+    const { date } = record
+
+    if (date.year > MAX_YEAR || date.year < MIN_YEAR)
+        return `you can\'t set year less than ${MIN_YEAR} or more than ${MAX_YEAR}`
+    if (date.month <= 0 || date.month >= 13) return `in my universe there is no month with number ${date.month}`
+    if (date.hour > 23 || date.hour < 0) return 'you cannot set hour less than 0 and more than 23'
+    if (date.minute > 59 || date.minute < 0) return 'you cannot set minute less than 0 and more than 59'
+    let maxDaysInThisMonth = getDaysInMonth(date.year, date.month)
+    if (date.day <= 0 || date.day > maxDaysInThisMonth) return `you cannot set day less than 1 and more than ${maxDaysInThisMonth}`
 
     return null
 }
