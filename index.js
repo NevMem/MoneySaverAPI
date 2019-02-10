@@ -25,6 +25,13 @@ db.connect().then(() => {
     })
 
     app.use(express.static(__dirname + '/public'))
+    
+    const handleHomePage = (_, res) => {
+        res.sendFile(__dirname + '/public/index.html')
+    }
+
+    app.get('/', handleHomePage)
+    app.get('/home', handleHomePage)
 
     app.post('/api/login', (req, res) => {
         let login = req.body.login, password = req.body.password
