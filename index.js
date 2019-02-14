@@ -223,7 +223,8 @@ db.connect().then(() => {
      * 
      *      info.totalSpend - total spending through all time
      *      info.average - average in day spending through all time
-     *      info.amountOfDays - total count ofDays
+     *      info.amountOfDays - total count of Days
+     *      info.sutmDaily - total sum o daily spendings
      * 
      *      only if options.info30 specified
      *          info.sum30Days - sum in last 30 days(or less if tracked less then 30 days)
@@ -238,6 +239,7 @@ db.connect().then(() => {
             totalSpend: 0,
             amountOfDays: 0,
             average: 0,
+            dailySum: 0,
         }
 
         if (options.info30) {
@@ -256,6 +258,8 @@ db.connect().then(() => {
 
         for (let i = 0; i != data.length; ++i) {
             info.totalSpend += Math.abs(data[i].value)
+            if (data[i].daily === false)
+                info.dailySum += Math.abs(data[i].value)
         }
 
         let differentDays = new Set
