@@ -226,6 +226,9 @@ db.connect().then(() => {
      *      info.amountOfDays - total count of Days
      *      info.sutmDaily - total sum o daily spendings
      * 
+     *      only if options.months is specified
+     *          info.monthSum - object represents amount of money spent per month
+     * 
      *      only if options.info30 specified
      *          info.sum30Days - sum in last 30 days(or less if tracked less then 30 days)
      *          info.average30Days - average in day spending in last 30 days(or less if tracked less then 30 days)
@@ -256,10 +259,28 @@ db.connect().then(() => {
             info.daySum = {}
         }
 
+        if (options.months) info.monthSum = {}
+
         for (let i = 0; i != data.length; ++i) {
             info.totalSpend += Math.abs(data[i].value)
             if (data[i].daily === false)
                 info.dailySum += Math.abs(data[i].value)
+            if (options.months) {
+                const curMonth = data[i].date.year + '.' + data[i].date.month
+                if (info.monthSum[curMonth] === undefined)
+                    info.monthSum[curMonth] = { total: 0, totalDaily: 0, average: 0, averageDaily: 0, byTag: {} }
+                info.monthSum[curMonth].total += Math.abs(data[i].value)
+                if (info.monthSum[curMonth].byTag[data[i].tags[0]] === undefined)
+                    info.monthSum[curMonth].byTag[data[i].tags[0]] = { daily: 0, total: 0 }
+                info.monthSum[curMonth].byTag[data[i].tags[0]].total += Math.abs(data[i].value)
+                if (data[i].daily === true) {
+                    info.monthSum[curMonth].totalDaily += Math.abs(data[i].value)
+                    info.monthSum[curMonth].byTag[data[i].tags[0]].daily += Math.abs(data[i].value)
+                }
+
+                info.monthSum[curMonth].average = info.monthSum[curMonth].total / utils.getDaysInMonth(data[i].date.year, data[i].date.month)
+                info.monthSum[curMonth].averageDaily = info.monthSum[curMonth].totalDaily / utils.getDaysInMonth(data[i].date.year, data[i].date.month)
+            }
         }
 
         let differentDays = new Set
@@ -349,6 +370,8 @@ db.connect().then(() => {
             options.info7 = true
         if (req.body.info30 === 'true')
             options.info30 = true
+        if (req.body.months === 'true')
+            options.months = true
         if (!token || !login) {
             token = req.query.token
             login = req.query.login
@@ -358,6 +381,8 @@ db.connect().then(() => {
                 options.info7 = true
             if (req.query.info30 === 'true')
                 options.info30 = true
+            if (req.query.months === 'true')
+                options.months = true
         }
         if (!token || !login) {
             res.send({ err: 'Login or token is empty' })
@@ -365,7 +390,7 @@ db.connect().then(() => {
         }
 
         jwt.verify(token, process.env.jwt_secret, (err, decoded) => {
-            if (err) {
+            if (err || decoded.login !== login) {
                 res.send({ type: 'error', err: 'Token is invalid' })
             } else {
                 db.get_data(token, login).then(data => {

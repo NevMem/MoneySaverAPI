@@ -61,6 +61,8 @@ const getDaysInMonth = (year, month) => {
     return __days_in_month[month]
 }
 
+exports.getDaysInMonth = getDaysInMonth
+
 exports.__get_prev_day = from => {
     let current = Object.assign({}, from)
     if (current.day === 1) {
