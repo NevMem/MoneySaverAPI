@@ -10,7 +10,6 @@ const express = require('express'),
 require('colors')
 require('dotenv').config()
 
-const defaultTags = [ 'Еда', 'Транспорт', 'Медиа', 'Проживание', 'Электроника', 'Одежда', 'Линзы', 'Посуда', 'Химия', 'Связь', 'Разное' ]
 const defaultWallets = [ 'Наличные', 'Сбербанк', 'ВТБ', 'АкБарс' ]
 
 db.connect().then(() => {
