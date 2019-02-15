@@ -5,7 +5,8 @@ const express = require('express'),
     db = require('./db'),
     utils = require('./utils'),
     fs = require('fs'),
-    compression = require('compression')
+    compression = require('compression'),
+    stats = require('./statistics')
 
 require('colors')
 require('dotenv').config()
@@ -20,8 +21,9 @@ db.connect().then(() => {
     app.use(bParser.urlencoded({ extended: true }))
 
     app.use((req, res, next) => {
-        console.log((`[${Date()}] ${req.method} ${req.url}`).cyan)
-
+        const userIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+        console.log((`[${Date()}] ${req.method} ${req.url} from: ${userIP}`).cyan)
+        stats.visit(new Date().toUTCString(), req.method, req.url, userIP)
         next()
     })
 
@@ -455,3 +457,23 @@ db.connect().then(() => {
 .catch(err => {
     console.log(err)
 })
+
+function onExit() {
+    console.log('Exiting')
+    fs.writeFileSync("hello.txt", "exited")
+    stats.flush()
+    process.exit(0)
+}
+
+process.on('message', (msg) => {
+    if (msg === 'shutdown') {
+        onExit()
+    }
+})
+
+process.on('exit', onExit)
+process.on('SIGINT', onExit)
+process.on('SIGKILL', onExit)
+process.on('SIGTERM', onExit)
+process.on('SIGUSR1', onExit)
+process.on('SIGUSR2', onExit)
