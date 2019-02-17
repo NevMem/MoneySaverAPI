@@ -208,6 +208,29 @@ db.connect().then(() => {
     app.get('/api/useTemplate', (req, res) => useTemplate(req, res))
     app.post('/api/useTemplate', (req, res) => useTemplate(req, res))
 
+    const removeTemplate = (req, res) => {
+        let login, token, templateId
+        if (req.method === 'GET') {
+            login = req.query.login
+            token = req.query.token
+            templateId = req.query.templateId
+        } else if (req.method === 'POST') {
+            login = req.body.login
+            token = req.body.token
+            templateId = req.body.templateId
+        }
+        db.removeTemplate(token, login, templateId)
+            .then(data => {
+                res.send({ type: 'ok', data: data })
+            })
+            .catch(err => {
+                res.send({ type: 'error', error: err })
+            })
+    }
+
+    app.get('/api/removeTemplate', (req, res) => removeTemplate(req, res))
+    app.post('/api/removeTemplate', (req, res) => removeTemplate(req, res))
+
     app.post('/api/add', (req, res) => {
         let token = req.body.token, 
             date = req.body.date, 

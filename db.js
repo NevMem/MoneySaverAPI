@@ -283,6 +283,33 @@ exports.useTemplate = (token, login, templateId, date) => {
     })
 }
 
+exports.removeTemplate = (token, login, templateId) => {
+    return new Promise((resolve, reject) => {
+        if (templateId === undefined) {
+            reject('Template id cannot be empty')
+            return
+        }
+        let id
+        try {
+            id = new ObjectID(templateId)            
+        } catch (err) {
+            reject('Template id is invalid')
+            return
+        }
+        checkToken(token, login)
+            .then(() => {
+                return db.collection('templates').deleteOne({ owner: login, _id: id })
+            })
+            .then(data => {
+                if (data.result.n == 1)
+                    resolve('Template was successfully removed')
+                else
+                    reject('We can\'t find this template, please contact us for more information')
+            })
+            .catch(err => reject(err))
+    })
+}
+
 exports.edit = (token, login, id, date, name, wallet, value, tags, daily) => {
     date.minute = parseInt(date.minute)
     date.hour = parseInt(date.hour)
