@@ -174,6 +174,40 @@ db.connect().then(() => {
     app.get('/api/templates', (req, res) => getTemplates(req, res))
     app.post('/api/templates', (req, res) => getTemplates(req, res))
 
+    const useTemplate = (req, res) => {
+        let login, token, templateId, date = {}
+        if (req.method === 'POST') {
+            login = req.body.login
+            token = req.body.token
+            templateId = req.body.templateId
+            date = req.body.date   
+        } else if (req.method === 'GET') {
+            login = req.query.login
+            token = req.query.token
+            templateId = req.query.templateId
+
+            date.year = parseInt(req.query.year)
+            date.month = parseInt(req.query.month)
+            date.day = parseInt(req.query.day)
+            date.hour = parseInt(req.query.hour)
+            date.minute = parseInt(req.query.minute)
+        }
+        db.useTemplate(token, login, templateId, date)
+            .then(data => {
+                res.send({
+                    type: 'ok', data: data
+                })
+            })
+            .catch(err => {
+                res.send({
+                    type: 'error', error: err
+                })
+            })
+    }
+
+    app.get('/api/useTemplate', (req, res) => useTemplate(req, res))
+    app.post('/api/useTemplate', (req, res) => useTemplate(re1, res))
+
     app.post('/api/add', (req, res) => {
         let token = req.body.token, 
             date = req.body.date, 

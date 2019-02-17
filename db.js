@@ -1,6 +1,7 @@
 const mongodb = require('mongodb'), 
     jwt = require('jsonwebtoken'), 
-    fs = require('fs')
+    fs = require('fs'),
+    utils = require('./utils')
 require('dotenv').config()
 require('colors')
 
@@ -207,7 +208,7 @@ function getUserTemplates(db, login) {
             if (err != null) {
                 reject(err)
             } else {
-                resolve(data.map(el => el.content))
+                resolve(data.map(el => { return { ...el.content, id: el._id } }))
             }
         })
     })
@@ -223,6 +224,62 @@ exports.templates = (token, login) => {
             .catch(err => {
                 reject(err)
             })
+    })
+}
+
+const loadTemplate = (templateId) => {
+    return new Promise((resolve, reject) => {
+        if (templateId === undefined) reject('template id cannot be empty')
+        else {
+            let id
+            try {
+                id = new ObjectID(templateId)
+            } catch (err) {
+                reject('template id is invalid')
+                return
+            }
+            db.collection('templates').findOne({ _id: id })
+                .then(data => {
+                    if (!data) {
+                        reject('template not found')
+                    } else {
+                        resolve(data)
+                    }
+                })
+        }
+    })
+}
+
+const generateTimeStamp = (date) => date.minute + date.hour * 60 + date.day * 24 * 60 + date.month * 31 * 24 * 60 + date.year * 12 * 31 * 24 * 60
+
+exports.useTemplate = (token, login, templateId, date) => {
+    return new Promise((resolve, reject) => {
+        checkToken(token, login)
+            .then(() => loadTemplate(templateId))
+            .then(template => {
+                if (template.owner !== login) {
+                    reject('Template not found')
+                } else {
+                    let record = Object.assign(template.content,
+                        { date: date, timestamp: generateTimeStamp(date) },
+                        { login: login, daily: true })
+                    record.value = -record.value
+                    const validation = utils.validateRecord(record)
+                    if (validation !== null) {
+                        reject(validation)
+                    } else {
+                        return db.collection('data').insertOne(record)
+                    }
+                }
+            })
+            .then(data => {
+                if (data.result.ok == 1) {
+                    resolve('Template was successfully used')
+                } else {
+                    reject('Erorr occured, please try later')
+                }
+            })
+            .catch(err => reject(err))
     })
 }
 
