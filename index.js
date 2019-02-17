@@ -145,7 +145,7 @@ db.connect().then(() => {
                     res.send({ type: 'ok' })
                 })
                 .catch(err => [
-                    re.send({ type: 'error', error: err })
+                    res.send({ type: 'error', error: err })
                 ])
         }
     })
@@ -451,8 +451,6 @@ db.connect().then(() => {
             console.log('Server is running'.green)
         }
     })
-        
-    // db.debug()
 })
 .catch(err => {
     console.log(err)
@@ -473,7 +471,3 @@ process.on('message', (msg) => {
 
 process.on('exit', onExit)
 process.on('SIGINT', onExit)
-process.on('SIGKILL', onExit)
-process.on('SIGTERM', onExit)
-process.on('SIGUSR1', onExit)
-process.on('SIGUSR2', onExit)
