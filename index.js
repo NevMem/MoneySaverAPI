@@ -206,7 +206,7 @@ db.connect().then(() => {
     }
 
     app.get('/api/useTemplate', (req, res) => useTemplate(req, res))
-    app.post('/api/useTemplate', (req, res) => useTemplate(re1, res))
+    app.post('/api/useTemplate', (req, res) => useTemplate(req, res))
 
     app.post('/api/add', (req, res) => {
         let token = req.body.token, 
