@@ -88,7 +88,6 @@ exports.add = (token, login, date, name, wallet, value, tags, daily) => {
             tags: tags,
             daily: daily
         }).then(data => {
-            console.log(data)
             resolve('ok')
         })
         .catch(err => {
@@ -99,8 +98,6 @@ exports.add = (token, login, date, name, wallet, value, tags, daily) => {
 
 exports.remove = (token, login, record_id) => {
     return new Promise((resolve, reject) => {
-        console.log(record_id)
-        console.log(token, login)
         db.collection('data').deleteOne({ login: login, _id: new ObjectID(record_id) }).then(data => {
             if (data.result.n == 1) {
                 resolve('ok')
@@ -317,8 +314,7 @@ exports.edit = (token, login, id, date, name, wallet, value, tags, daily) => {
     date.month = parseInt(date.month)
     date.year = parseInt(date.year)
     let timestamp = date.minute + date.hour * 60 + date.day * 24 * 60 + date.month * 31 * 24 * 60 + date.year * 12 * 31 * 24 * 60
-    return new Promise((resolve, reject) => {    
-        console.log(token, login, id, date, name, wallet, value, tags)
+    return new Promise((resolve, reject) => {
         db.collection('data').updateOne({_id: new ObjectID(id)}, { $set: {
             login: login, 
             date: date, 
@@ -329,7 +325,6 @@ exports.edit = (token, login, id, date, name, wallet, value, tags, daily) => {
             tags: tags,
             daily: daily
         }}).then(data => {
-            // console.log(data)
             resolve('edited')
         }).catch(err => {
             console.log(err)
