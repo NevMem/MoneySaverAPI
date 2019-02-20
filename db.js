@@ -112,17 +112,13 @@ exports.remove = (token, login, record_id) => {
 
 function getUserTags(db, login) {
     return new Promise((resolve, reject) => {
-        db.collection('users').findOne({ login: login }, { projection: { tags: 1 } })
-            .then(data => {
-                if (typeof(data.tags) !== 'object') {
-                    resolve([])
-                } else {
-                    resolve(data.tags)
-                }
-            })
-            .catch(err => {
-                reject(err)
-            })
+        db.collection('tags').find({ owner: login }).toArray((err, data) => {
+            if (err) {
+                reject()
+            } else {
+                resolve(data.map(elem => elem.tagName))
+            }
+        })
     })
 }
 
@@ -134,6 +130,7 @@ exports.tags = (token, login) => {
                 resolve(data)
             })
             .catch(err => {
+                console.log(err)
                 reject(err)
             })
     })
@@ -144,13 +141,18 @@ function addTag(db, login, tagName) {
         if (typeof(tagName) !== 'string' || tagName.length == 0) {
             reject('invalid tag name')
         } else {
-            db.collection('users').findOneAndUpdate({ login: login }, { $push: { tags: tagName } })
-                .then(data => {
-                    resolve(data)
-                })
-                .catch(err => {
-                    reject()
-                })
+            db.collection('tags').insertOne({ owner: login, tagName: tagName }, (err, data) => {
+                if (err) {
+                    console.log(err)
+                    reject('Error happened, please try later')
+                } else {
+                    if (data.result.n === data.result.ok) {
+                        resolve('Your tag was successfully created')
+                    } else {
+                        reject('Something went wrong, please try later')
+                    }
+                }
+            })
         }
     })
 }
@@ -162,10 +164,7 @@ exports.addTag = (token, login, tagName) => {
                 return addTag(db, login, tagName)
             })
             .then(data => {
-                if (data.ok === 1)
-                    resolve('Tag was successfully added, possibly you will need to reload the page')
-                else
-                    reject('error ocurred, please try later')
+                resolve(data)
             })
             .catch(err => {
                 reject(err)
