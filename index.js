@@ -424,11 +424,11 @@ db.connect().then(() => {
         let options = {}
         if (req.body.daysDescription === 'true')
             options.daysDescription = true
-        if (req.body.info7 === 'true')
+        if (req.body.info7 === 'true' || req.body.info7)
             options.info7 = true
-        if (req.body.info30 === 'true')
+        if (req.body.info30 === 'true' || req.body.info30)
             options.info30 = true
-        if (req.body.months === 'true')
+        if (req.body.months === 'true' || req.body.months)
             options.months = true
         if (!token || !login) {
             token = req.query.token
