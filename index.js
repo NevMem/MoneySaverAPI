@@ -270,7 +270,7 @@ db.connect().then(() => {
      * @param {float} value - float value, which will be beautified
      * floors float to 2 digits after comma
      */
-    const beautifyFloat = value => (value * 100 | 0) / 100.
+    const beautifyFloat = value => +value.toFixed(2)
 
     /**
      * Function which provides analyzing functionality for the user
@@ -282,7 +282,7 @@ db.connect().then(() => {
      *      info.totalSpend - total spending through all time
      *      info.average - average in day spending through all time
      *      info.amountOfDays - total count of Days
-     *      info.sutmDaily - total sum o daily spendings
+     *      info.sumDaily - total sum o daily spendings
      * 
      *      only if options.months is specified
      *          info.monthSum - object represents amount of money spent per month
@@ -398,8 +398,10 @@ db.connect().then(() => {
                     info.sum30Days += buffer[i][1]
                     count += 1
                 }
-                if (count !== 0)
+                if (count !== 0) {
+                    info.sum30Days = beautifyFloat(sum30Days)
                     info.average30Days = beautifyFloat(info.sum30Days / count)
+                }
             }
             if (options.info7) {
                 let count = 0
@@ -407,14 +409,16 @@ db.connect().then(() => {
                     info.sum7Days += buffer[i][1]
                     count += 1
                 }
-                if (count !== 0)
+                if (count !== 0) {
+                    info.sum7Days = beautifyFloat(sum7Days)
                     info.average7Days = beautifyFloat(info.sum7Days / count)
+                }
             }
         }
 
-        info.totalSpend = (info.totalSpend * 100 | 0) / 100.0
+        info.totalSpend = beautifyFloat(info.totalSpend)
         info.amountOfDays = differentDays.size
-        info.average = ((info.totalSpend / info.amountOfDays * 100) | 0) / 100.0
+        info.average = beautifyFloat(info.totalSpend / info.amountOfDays)
 
         return info
     }
@@ -422,7 +426,7 @@ db.connect().then(() => {
     const info = (req, res) => {
         let { token, login } = req.body
         let options = {}
-        if (req.body.daysDescription === 'true')
+        if (req.body.daysDescription === 'true' || req.body.daysDescription)
             options.daysDescription = true
         if (req.body.info7 === 'true' || req.body.info7)
             options.info7 = true
