@@ -399,7 +399,7 @@ db.connect().then(() => {
                     count += 1
                 }
                 if (count !== 0) {
-                    info.sum30Days = beautifyFloat(sum30Days)
+                    info.sum30Days = beautifyFloat(info.sum30Days)
                     info.average30Days = beautifyFloat(info.sum30Days / count)
                 }
             }
@@ -410,7 +410,7 @@ db.connect().then(() => {
                     count += 1
                 }
                 if (count !== 0) {
-                    info.sum7Days = beautifyFloat(sum7Days)
+                    info.sum7Days = beautifyFloat(info.sum7Days)
                     info.average7Days = beautifyFloat(info.sum7Days / count)
                 }
             }
