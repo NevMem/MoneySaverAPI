@@ -95,7 +95,7 @@ exports.validateRecord = (record) => {
     if (record.login === undefined || record.login.length == 0) return 'record owner login is undefined or empty'
     
     if (record.tags === undefined || typeof(record.tags) != 'object' || typeof(record.tags.length) != 'number')
-        return 'record tags is empty ot it is not an array'
+        return 'record tags is empty or it is not an array'
     else if (record.tags.length > 1) return 'record tags array must have only one element'
     else if (record.tags.length == 0) return 'record tags array must have at least one element'
 
