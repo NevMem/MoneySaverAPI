@@ -356,32 +356,33 @@ db.connect().then(() => {
 
         let differentDays = new Set
         let daySum = {}
-
-        let min_date = Object.assign({}, data[0].date)
-        let max_date = Object.assign({}, data[0].date)
-        for (let i = 0; i !== data.length; ++i) {
-            if (utils.__is_before(data[i].date, min_date))
-                min_date = Object.assign({}, data[i].date)
-            if (utils.__is_before(max_date, data[i].date))
-                max_date = Object.assign({}, data[i].date)
-        }
-        if (!utils.__is_to_day_equal(min_date, max_date)) {
-            let this_day = max_date
-            while (utils.__is_before(min_date, this_day)) {              
-                let encoded = this_day.year * 31 * 12 + this_day.month * 31 + this_day.day
-                differentDays.add(encoded)
-                if (options.daysDescription || options.info7 || options.info30)
-                    if (!daySum[utils.codeDay(this_day)])
-                        daySum[utils.codeDay(this_day)] = 0  
-                this_day = utils.__get_prev_day(this_day)
+        if (data.length != 0) {
+            let min_date = Object.assign({}, data[0].date)
+            let max_date = Object.assign({}, data[0].date)
+            for (let i = 0; i !== data.length; ++i) {
+                if (utils.__is_before(data[i].date, min_date))
+                    min_date = Object.assign({}, data[i].date)
+                if (utils.__is_before(max_date, data[i].date))
+                    max_date = Object.assign({}, data[i].date)
             }
-            differentDays.add(min_date)
-            if (options.daysDescription || options.info7 || options.info30)
-                if (!daySum[utils.codeDay(min_date)])
-                    daySum[utils.codeDay(min_date)] = 0
-        } else {
-            differentDays.add(min_date)
-            daySum[utils.codeDay(min_date)] = 0
+            if (!utils.__is_to_day_equal(min_date, max_date)) {
+                let this_day = max_date
+                while (utils.__is_before(min_date, this_day)) {              
+                    let encoded = this_day.year * 31 * 12 + this_day.month * 31 + this_day.day
+                    differentDays.add(encoded)
+                    if (options.daysDescription || options.info7 || options.info30)
+                        if (!daySum[utils.codeDay(this_day)])
+                            daySum[utils.codeDay(this_day)] = 0  
+                    this_day = utils.__get_prev_day(this_day)
+                }
+                differentDays.add(min_date)
+                if (options.daysDescription || options.info7 || options.info30)
+                    if (!daySum[utils.codeDay(min_date)])
+                        daySum[utils.codeDay(min_date)] = 0
+            } else {
+                differentDays.add(min_date)
+                daySum[utils.codeDay(min_date)] = 0
+            }
         }
 
         if (options.daysDescription || options.info30 || options.info7) {
@@ -434,7 +435,8 @@ db.connect().then(() => {
 
         info.totalSpend = beautifyFloat(info.totalSpend)
         info.amountOfDays = differentDays.size
-        info.average = beautifyFloat(info.totalSpend / info.amountOfDays)
+        if (info.amountOfDays != 0)
+            info.average = beautifyFloat(info.totalSpend / info.amountOfDays)
 
         return info
     }
