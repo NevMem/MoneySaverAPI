@@ -341,6 +341,19 @@ db.connect().then(() => {
             }
         }
 
+        if (options.months) {
+            for (let month in info.monthSum) {
+                info.monthSum[month].average = beautifyFloat(info.monthSum[month].average)
+                info.monthSum[month].averageDaily = beautifyFloat(info.monthSum[month].averageDaily)
+                info.monthSum[month].total = beautifyFloat(info.monthSum[month].total)
+                info.monthSum[month].totalDaily = beautifyFloat(info.monthSum[month].totalDaily)
+                for (let tag in info.monthSum[month].byTag) {
+                    info.monthSum[month].byTag[tag].total = beautifyFloat(info.monthSum[month].byTag[tag].total)
+                    info.monthSum[month].byTag[tag].daily = beautifyFloat(info.monthSum[month].byTag[tag].daily)
+                }
+            }
+        }
+
         let differentDays = new Set
         let daySum = {}
 
