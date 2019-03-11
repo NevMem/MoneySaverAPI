@@ -378,7 +378,10 @@ db.connect().then(() => {
             differentDays.add(min_date)
             if (options.daysDescription || options.info7 || options.info30)
                 if (!daySum[utils.codeDay(min_date)])
-                    daySum[utils.codeDay(min_date)] = 0  
+                    daySum[utils.codeDay(min_date)] = 0
+        } else {
+            differentDays.add(min_date)
+            daySum[utils.codeDay(min_date)] = 0
         }
 
         if (options.daysDescription || options.info30 || options.info7) {
