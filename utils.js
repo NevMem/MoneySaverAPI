@@ -96,6 +96,8 @@ exports.validateRecord = (record) => {
     
     if (record.tags === undefined || typeof(record.tags) != 'object' || typeof(record.tags.length) != 'number')
         return 'record tags is empty or it is not an array'
+    if (record.tags[0] == undefined)
+        return 'record tag shouldn\'t be null'
     else if (record.tags.length > 1) return 'record tags array must have only one element'
     else if (record.tags.length == 0) return 'record tags array must have at least one element'
 
@@ -133,6 +135,8 @@ exports.validateTemplate = (template) => {
     
     if (template.tags === undefined || typeof(template.tags) != 'object' || typeof(template.tags.length) != 'number')
         return 'template tags is empty ot it is not an array'
+    if (template.tags[0] == undefined)
+        return 'record tag shouldn\'t be null'
     else if (template.tags.length > 1) return 'template tags array must have only one element'
     else if (template.tags.length == 0) return 'template tags array must have at least one element'
 
