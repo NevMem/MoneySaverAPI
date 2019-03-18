@@ -135,8 +135,8 @@ exports.validateTemplate = (template) => {
     
     if (template.tags === undefined || typeof(template.tags) != 'object' || typeof(template.tags.length) != 'number')
         return 'template tags is empty ot it is not an array'
-    if (template.tags[0] == undefined)
-        return 'record tag shouldn\'t be null'
+    if (template.tags[0] === undefined)
+        return 'template tag shouldn\'t be null'
     else if (template.tags.length > 1) return 'template tags array must have only one element'
     else if (template.tags.length == 0) return 'template tags array must have at least one element'
 
