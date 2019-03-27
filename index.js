@@ -157,7 +157,9 @@ db.connect().then(() => {
             login = req.query.login
         }
         db.templates(token, login)
+            .then(data => data.map((elem) => { return { ...elem, tag: elem.tags[0] } }))
             .then(data => {
+                console.log(data)
                 res.send({
                     type: 'ok',
                     data: data,
