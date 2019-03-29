@@ -201,6 +201,7 @@ db.connect().then(() => {
                 })
             })
             .catch(err => {
+                console.log(err)
                 res.send({
                     type: 'error', error: err
                 })
@@ -504,7 +505,14 @@ db.connect().then(() => {
                     res.send({ err: 'Token is ivalid or empty. Please relogin' })
                     return
                 } else {
-                    db.get_data(token, login).then(data => {
+                    db.get_data(token, login)
+                    .then(data => data.map(elem => {
+                        if(elem.tags.length != 0)
+                            return { ...elem, tag: elem.tags[0] }
+                        else
+                            return { ...elem, tag: 'unknown' }
+                    }))
+                    .then(data => {
                         res.send(data)
                     })
                     .catch(err => {
