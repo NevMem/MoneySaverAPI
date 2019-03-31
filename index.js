@@ -105,7 +105,7 @@ db.connect().then(() => {
     app.get('/api/tags', (req, res) => getTags(req, res))
 
     const getWallets = (req, res) => {
-        res.send(defaultWallets)
+        res.send({ type: 'ok', data: defaultWallets })
     }
 
     app.post('/api/wallets', (req, res) => getWallets(req, res))
