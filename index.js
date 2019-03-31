@@ -524,12 +524,48 @@ db.connect().then(() => {
         }
     })
 
+    app.post('/api/history', (req, res) => {
+        let token = req.body.token
+        let login = req.body.login
+
+        if (!token) {
+            res.send({ err: 'Token is ivalid or empty. Please relogin' })
+        } else {
+            jwt.verify(token, process.env.jwt_secret, (err, decoded) => {
+                if (err) {
+                    res.send({ err: 'Token is ivalid or empty. Please relogin' })
+                    return
+                } else {
+                    db.get_data(token, login)
+                    .then(data => data.map(elem => {
+                        if(elem.tags.length != 0)
+                            return { ...elem, tag: elem.tags[0] }
+                        else
+                            return { ...elem, tag: 'unknown' }
+                    }))
+                    .then(data => {
+                        res.send({
+                            type: 'ok', data: data
+                        })
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        res.send({ type: 'error', error: err })
+                    })
+                }
+            })
+        }
+    })
+
     app.post('/api/remove', (req, res) => {
         let token = req.body.token, login = req.body.login, record_id = req.body.record_id
+        console.log(`Remove request from ${login} with id: ${record_id}`)
         db.remove(token, login, record_id).then(data => {
+            console.log(data)
             res.send(data)
         }).catch(err => {
-            res.send({ err: err })
+            console.log(err)
+            res.send({ type: 'error', error: 'Server error' })
         })
     })
 

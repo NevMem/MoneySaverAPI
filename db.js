@@ -100,9 +100,9 @@ exports.remove = (token, login, record_id) => {
     return new Promise((resolve, reject) => {
         db.collection('data').deleteOne({ login: login, _id: new ObjectID(record_id) }).then(data => {
             if (data.result.n == 1) {
-                resolve('ok')
+                resolve({ type: 'ok' })
             } else {
-                reject('element was not found')    
+                reject({ type: 'error', error: 'element was not found' })    
             }
         }).catch(err => {
             reject(err)
