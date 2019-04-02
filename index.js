@@ -244,6 +244,9 @@ db.connect().then(() => {
             tags = req.body.tags,
             daily = req.body.daily
 
+        if (req.body.tag !== undefined) // FIXME: (just for a while)
+            tags = [ req.body.tag ]
+
         const validation = utils.validateRecord({ name, date, value, wallet, login, tags, daily })
         if (validation !== null) {
             res.send({ type: 'error', error: validation })
