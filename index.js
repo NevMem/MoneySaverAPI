@@ -301,7 +301,7 @@ db.connect().then(() => {
      *      info.totalSpend - total spending through all time
      *      info.average - average in day spending through all time
      *      info.amountOfDays - total count of Days
-     *      info.sumDaily - total sum o daily spendings
+     *      info.sumDaily - total sum of daily spendings
      * 
      *      only if options.months is specified
      *          info.monthSum - object represents amount of money spent per month
@@ -340,7 +340,7 @@ db.connect().then(() => {
 
         for (let i = 0; i != data.length; ++i) {
             info.totalSpend += Math.abs(data[i].value)
-            if (data[i].daily === false)
+            if (data[i].daily === true)
                 info.dailySum += Math.abs(data[i].value)
             if (options.months) {
                 const curMonth = data[i].date.year + '.' + data[i].date.month
