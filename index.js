@@ -105,7 +105,20 @@ db.connect().then(() => {
     app.get('/api/tags', (req, res) => getTags(req, res))
 
     const getWallets = (req, res) => {
-        res.send({ type: 'ok', data: defaultWallets })
+        let token = ''
+        let login = ''
+        if (req.method == 'GET') {
+            token = req.query.token
+            login = req.query.login
+        } else if (req.method == 'POST') {
+            token = req.body.token
+            login = req.body.login
+        }
+        db.wallets(token, login)
+            .then(data => res.send({ type: 'ok', data: data }))
+            .catch(() => {
+                res.send({ type: 'error', error: 'Server error occurred' })
+            })
     }
 
     app.post('/api/wallets', (req, res) => getWallets(req, res))

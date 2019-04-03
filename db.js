@@ -114,7 +114,7 @@ function getUserTags(db, login) {
     return new Promise((resolve, reject) => {
         db.collection('tags').find({ owner: login }).toArray((err, data) => {
             if (err) {
-                reject()
+                reject(err)
             } else {
                 resolve(data.map(elem => elem.tagName))
             }
@@ -132,6 +132,32 @@ exports.tags = (token, login) => {
             .catch(err => {
                 console.log(err)
                 reject(err)
+            })
+    })
+}
+
+function getUserWallets(db, login) {
+    db.collection('wallets')
+        .find({ owner: login })
+        .toArray((err, data) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(data.map(elem => elem.walletName))
+            }
+        })
+}
+
+exports.wallets = (token, login) => {
+    return new Promise((resolve, reject) => {
+        checkToken(token, login)
+            .then(() => getUserWallets(db, login))
+            .then(data => {
+                resolve(data)
+            })
+            .catch(err => {
+                console.log(err)
+                reject()
             })
     })
 }
