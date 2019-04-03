@@ -136,6 +136,42 @@ exports.tags = (token, login) => {
     })
 }
 
+function addWallet(db, login, walletName) {
+    return new Promise((resolve, reject) => {
+        if (typeof(walletName) !== 'string' || walletName.length == 0) {
+            reject('invalid wallet name')
+        } else {
+            db.collection('wallets').insertOne({ owner: login, tagName: walletName }, (err, data) => {
+                if (err) {
+                    console.log(err)
+                    reject('Error happened, please try later')
+                } else {
+                    if (data.result.n === data.result.ok) {
+                        resolve('Your tag was successfully created')
+                    } else {
+                        reject('Something went wrong, please try later')
+                    }
+                }
+            })
+        }
+    })
+}
+
+exports.addWallet = (token, login, walletName) => {
+    return new Promise((resolve, reject) => {
+        checkToken(token, login)
+            .then(() => {
+                return addWallet(db, login, walletName)
+            })
+            .then(data => {
+                resolve(data)
+            })
+            .catch(err => {
+                reject(err)
+            })
+    })    
+}
+
 function getUserWallets(db, login) {
     db.collection('wallets')
         .find({ owner: login })
