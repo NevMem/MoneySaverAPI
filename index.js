@@ -42,11 +42,11 @@ db.connect().then(() => {
         
         db.login(login, password)
         .then(response => {
-            res.send(response)
+            res.send({ type: 'ok', data: response })
         })
         .catch(err => {
             console.log(err)
-            res.send({ err: err })
+            res.send({ type: 'error', error: err })
         })
     })
 

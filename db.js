@@ -398,7 +398,8 @@ exports.login = ( login, password ) => {
     return new Promise((resolve, reject) => {
         db.collection('users').find({ login: login }).toArray((err, response) => {
             if (err) {
-                reject(err)
+                console.log(err)
+                reject('Sever error')
             } else {
                 if (response.length >= 2) {
                     console.log('Corrupted database'.red)
