@@ -173,15 +173,17 @@ exports.addWallet = (token, login, walletName) => {
 }
 
 function getUserWallets(db, login) {
-    db.collection('wallets')
-        .find({ owner: login })
-        .toArray((err, data) => {
-            if (err) {
-                reject(err)
-            } else {
-                resolve(data.map(elem => elem.walletName))
-            }
-        })
+    return new Promise((resolve, reject) => {
+        db.collection('wallets')
+            .find({ owner: login })
+            .toArray((err, data) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(data.map(elem => elem.walletName))
+                }
+            })
+    })
 }
 
 exports.wallets = (token, login) => {
