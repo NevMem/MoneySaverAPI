@@ -344,8 +344,9 @@ db.connect().then(() => {
                 info.dailySum += Math.abs(data[i].value)
             if (options.months) {
                 const curMonth = data[i].date.year + '.' + data[i].date.month
-                if (info.monthSum[curMonth] === undefined)
-                    info.monthSum[curMonth] = { total: 0, totalDaily: 0, average: 0, averageDaily: 0, byTag: {} }
+                if (info.monthSum[curMonth] === undefined) {
+                    info.monthSum[curMonth] = { total: 0, monthTimestamp: data[i].date.month + data[i].date.year * 12, totalDaily: 0, average: 0, averageDaily: 0, byTag: {} }
+                }
                 info.monthSum[curMonth].total += Math.abs(data[i].value)
                 if (info.monthSum[curMonth].byTag[data[i].tags[0]] === undefined)
                     info.monthSum[curMonth].byTag[data[i].tags[0]] = { daily: 0, total: 0 }
