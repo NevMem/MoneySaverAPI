@@ -11,7 +11,25 @@ const express = require('express'),
 require('colors')
 require('dotenv').config()
 
-const defaultWallets = [ 'Наличные', 'Сбербанк', 'ВТБ', 'АкБарс' ]
+const DEBUG_LOG = process.env.debug_log === 'true'
+
+const deb_log = (msg, url) => {
+    if (DEBUG_LOG) {
+        if (url !== undefined) {
+            console.log(`/----- ${url} -----/`.magenta)
+        }
+        console.log(msg.yellow)
+    }
+}
+
+const err_log = (msg, url) => {
+    if (DEBUG_LOG) {
+        if (url !== undefined) {
+            console.log(`Error: ${url}`.red)
+        }
+        console.log(`${msg}`.red)
+    }
+}
 
 db.connect().then(() => {
     let app = express()
@@ -38,15 +56,16 @@ db.connect().then(() => {
 
     app.post('/api/login', (req, res) => {
         let login = req.body.login, password = req.body.password
-        console.log(('Try to log in with login: ' + login + ' password: ' + '---//---').cyan)
+
+        deb_log('Try to log in with login: ' + login + ' password: ' + '---//---', 'api/login')
         
         db.login(login, password)
         .then(response => {
             res.send({ type: 'ok', data: response })
         })
-        .catch(err => {
-            console.log(err)
-            res.send({ type: 'error', error: err })
+        .catch(error => {
+            err_log(error, 'api/login')
+            res.send({ type: 'error', error: error })
         })
     })
 
@@ -61,6 +80,9 @@ db.connect().then(() => {
             id = req.body.id,
             daily = req.body.daily
         const validation = utils.validateRecord({ name, date, value, wallet, login, tags, daily })
+
+        deb_log(`name: ${name}, value: ${value}, wallet: ${wallet}, login: ${login}, id: ${id}\nvalidation: ${validation}`, 'api/edit')
+
         if (validation !== null) {
             res.send({ type: 'error', error: validation })
         } else {
@@ -73,9 +95,9 @@ db.connect().then(() => {
                 } else {
                     res.send({ type: 'ok' })
                 }
-            }).catch(err => {
-                console.log(err)
-                res.send({ type: 'error', error: err })
+            }).catch(error => {
+                err_log(error, 'api/edit')
+                res.send({ type: 'error', error: error })
             })
         }
     })
@@ -86,8 +108,10 @@ db.connect().then(() => {
             token = req.query.token
             login = req.query.login
         }
+        deb_log(`login: ${login}`, 'api/tags')
         db.tags(token, login)
             .then(data => {
+                deb_log(`Found ${data.length} tags`)
                 res.send({
                     type: 'ok',
                     data: data
@@ -114,8 +138,12 @@ db.connect().then(() => {
             token = req.body.token
             login = req.body.login
         }
+        deb_log(`login: ${login}`, 'api/wallets')
         db.wallets(token, login)
-            .then(data => res.send({ type: 'ok', data: data }))
+            .then(data => {
+                deb_log(`Was found ${data.length} wallets`)
+                res.send({ type: 'ok', data: data })
+            })
             .catch(() => {
                 res.send({ type: 'error', error: 'Server error occurred' })
             })
@@ -126,14 +154,17 @@ db.connect().then(() => {
 
     app.post('/api/addTag', (req, res) => {
         const { token, login, tagName } = req.body
+        deb_log(`login: ${login}, tag name: ${tagName}`, 'api/addTag')
         db.addTag(token, login, tagName)
             .then(data => {
+                deb_log(`add tag response: ${data}`)
                 res.send({
                     type: 'ok',
                     data: data,
                 })
             })
             .catch(err => {
+                err_log(error, 'api/addTag')
                 res.send({
                     type: 'error',
                     error: err,
@@ -147,6 +178,9 @@ db.connect().then(() => {
             name, value, wallet, tags: [tag]
         }
         const validation = utils.validateTemplate(template)
+
+        deb_log(`login: ${login} validation: ${validation}`, 'api/createTemplate')
+
         if (validation !== null) {
             res.send({
                 type: 'error',
@@ -169,19 +203,23 @@ db.connect().then(() => {
             token = req.query.token
             login = req.query.login
         }
+
+        deb_log(`login: ${login}`, 'api/templates')
+        
         db.templates(token, login)
             .then(data => data.map((elem) => { return { ...elem, tag: elem.tags[0] } }))
             .then(data => {
-                console.log(data)
+                deb_log(`Was found ${data.length} templates`)
                 res.send({
                     type: 'ok',
                     data: data,
                 })
             })
-            .catch(err => {
+            .catch(error => {
+                err_log(error, 'api/templates')
                 res.send({
                     type: 'error',
-                    error: err
+                    error: error
                 })
             })
     }
@@ -207,16 +245,20 @@ db.connect().then(() => {
             date.hour = parseInt(req.query.hour)
             date.minute = parseInt(req.query.minute)
         }
+
+        deb_log(`login: ${login}, template id: ${templateId}`, 'api/useTemplate')
+        
         db.useTemplate(token, login, templateId, date)
             .then(data => {
+                deb_log(`use template response: ${data}`.green)
                 res.send({
                     type: 'ok', data: data
                 })
             })
-            .catch(err => {
-                console.log(err)
+            .catch(error => {
+                err_log(error, 'api/useTemplate')
                 res.send({
-                    type: 'error', error: err
+                    type: 'error', error: error
                 })
             })
     }
@@ -235,11 +277,16 @@ db.connect().then(() => {
             token = req.body.token
             templateId = req.body.templateId
         }
+        
+        deb_log(`login: ${login}, template id: ${templateId}`, 'api/removeTemplate')
+        
         db.removeTemplate(token, login, templateId)
             .then(data => {
+                deb_log(`Remove template response: ${data}`.green)
                 res.send({ type: 'ok', data: data })
             })
             .catch(err => {
+                err_log(`${err}`, 'api/removeTemplate')
                 res.send({ type: 'error', error: err })
             })
     }
@@ -261,24 +308,31 @@ db.connect().then(() => {
             tags = [ req.body.tag ]
 
         const validation = utils.validateRecord({ name, date, value, wallet, login, tags, daily })
+
+        deb_log(`login: ${login}, validation: ${validation}`, 'api/add')
+
         if (validation !== null) {
             res.send({ type: 'error', error: validation })
         } else {
             if (token) {
                 jwt.verify(token, process.env.jwt_secret, (err, decoded) => {
                     if (err) {
+                        err_log('Wrong token', 'api/add')
                         res.send({ type: 'error', error: 'Token is ivalid or empty. Please relogin' })
                     } else {
                         db.add(token, login, date, name, wallet, value, tags, daily)
                         .then(data => {
+                            deb_log(`add record respons: ${data}`)
                             res.send({ type: 'ok', data: data })
                         })
-                        .catch(err => {
-                            res.send({ type: 'error', error: err })
+                        .catch(error => {
+                            err_log(error, 'api/add')
+                            res.send({ type: 'error', error: error })
                         })
                     }
                 })
             } else {
+                err_log('empty token', 'api/add')
                 res.send({ type: 'error', error: 'Token is ivalid or empty. Please relogin' })
             }
         }
