@@ -615,6 +615,7 @@ db.connect().then(() => {
                             return { ...elem, tag: 'unknown' }
                     }))
                     .then(data => {
+                        deb_log(`Sending data, amount of symbols in JSON format is: ${JSON.stringify(data).length}`)
                         res.send({
                             type: 'ok', data: data
                         })
