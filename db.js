@@ -423,6 +423,23 @@ exports.login = ( login, password ) => {
     })
 }
 
+exports.checkLogin = login => {
+    return new Promise((resolve, reject) => {
+        db.collection('users').find({ login: login }).toArray((err, resp) => {
+            if (err) {
+                console.log(err)
+                reject('Sever error')
+            } else {
+                if (resp.length == 0) {
+                    resolve()
+                } else {
+                    reject('This login is used by another user')
+                }
+            }
+        })
+    })
+}
+
 clearAll = () => {
     console.log('Droping table')
     return new Promise((resolve, reject) => {

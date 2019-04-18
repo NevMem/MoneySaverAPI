@@ -595,6 +595,30 @@ db.connect().then(() => {
         }
     })
 
+    app.all('/api/checkLogin', (req, res) => {
+        let login = undefined
+        if (req.method === 'GET') {
+            login = req.query.login
+        } else if (req.method === 'POST') {
+            login = req.body.login            
+        }
+        if (login === undefined) {
+            res.send({ type: 'error', error: 'login is undefined' })
+            return
+        }
+        if (login.length <= 5) {
+            res.send({ type: 'ok', result: 'Login is too short' })
+            return
+        }
+        db.checkLogin(login)
+            .then(() => {
+                res.send({ type: 'ok', result: 'ok' })
+            })
+            .catch(error => {
+                res.send({ type: 'error', error: error })
+            })
+    })
+
     app.post('/api/history', (req, res) => {
         let token = req.body.token
         let login = req.body.login
