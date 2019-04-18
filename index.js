@@ -619,6 +619,40 @@ db.connect().then(() => {
             })
     })
 
+    app.all('/api/register', (req, res) => {
+        let login = undefined
+        let password = undefined
+        let firstName = undefined
+        let lastName = undefined
+        if (req.method === 'GET') {
+            login = req.query.login
+            password = req.query.password
+            firstName = req.query.firstName
+            lastName = req.query.lastName
+        } else {
+            login = req.body.login
+            password = req.body.password
+            firstName = req.body.firstName
+            lastName = req.body.lastName
+        }
+        deb_log(JSON.stringify(user), '/api/register')
+        const user = { login, password, first_name: firstName, last_name: lastName }
+        const validation = utils.validiateUser(user)
+        deb_log('Validation: ' + validation)
+        if (validation !== undefined) {
+            res.send({ type: 'error', error: validation })
+        } else {
+            db.register(user)
+                .then(() => {
+                    res.send({ type: 'ok', data: 'You\'ve been successfully registered' })
+                })
+                .catch(error => {
+                    err_log(error)
+                    res.send({ type: 'error', error })
+                })
+        }
+    })
+
     app.post('/api/history', (req, res) => {
         let token = req.body.token
         let login = req.body.login

@@ -423,7 +423,7 @@ exports.login = ( login, password ) => {
     })
 }
 
-exports.checkLogin = login => {
+function checkLogin(login) {
     return new Promise((resolve, reject) => {
         db.collection('users').find({ login: login }).toArray((err, resp) => {
             if (err) {
@@ -437,6 +437,31 @@ exports.checkLogin = login => {
                 }
             }
         })
+    })
+}
+
+exports.checkLogin = checkLogin
+
+exports.register = user => {
+    return new Promise((resolve, reject) => {
+        checkLogin(user.login)  
+            .then(data => {
+                console.log(data)
+                db.collection('users').insertOne(user)
+                    .then(res => {
+                        if (res.result.n == 1) {
+                            resolve()
+                        } else {
+                            reject('Server error happened')
+                        }
+                    })
+                    .catch(error => reject(error))
+
+            })
+            .catch(error => {
+                console.log(error)
+                reject(error)
+            })
     })
 }
 

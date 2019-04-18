@@ -146,3 +146,59 @@ exports.validateTemplate = (template) => {
 
     return null
 }
+
+const checkLogin = login => {
+    if (login === undefined) return 'User login cannot be empty'
+    if (typeof(login) !== 'string') return 'Wrong login typename'
+    if (login.length < 6) return 'Login is too short'
+    return undefined
+}
+
+const hasDigits = (password) => {
+    for (let i = 0; i < password.length; ++i)
+        if ('0' <= password[i] && password[i] <= '9') return true
+    return false
+}
+
+const hasLetters = (password) => {
+    for (let i = 0; i < password.length; ++i) {
+        if ('a' <= password[i] && password[i] <= 'z') return true
+        if ('A' <= password[i] && password[i] <= 'Z') return true
+    }
+    return false
+}
+
+const checkPassword = password => {
+    if (password === undefined) return 'Password cannot be empty'
+    if (typeof(password) !== 'string') return 'Wrong password typename'
+    if (password.length < 6) return 'Password is too short(Must have at least 6 letters)'
+    if (!hasDigits(password)) return 'Password must contain at least one digit'
+    if (!hasLetters(password)) return 'Password must contain at least one small or large letter'
+    return undefined
+}
+
+const checkFirstName = firstName => {
+    if (firstName === undefined) return 'First name cannot be empty'
+    return undefined
+}
+
+const checkLastName = lastName => {
+    if (lastName === undefined) return 'Last name cannot be empty'
+    return undefined
+}
+
+exports.validiateUser = (user) => {
+    const loginCheck = checkLogin(user.login)
+    if (loginCheck !== undefined) return loginCheck
+
+    const passwordCheck = checkPassword(user.password)
+    if (passwordCheck !== undefined) return passwordCheck
+
+    const firstNameCheck = checkFirstName(user.first_name)
+    if (firstNameCheck !== undefined) return firstNameCheck
+
+    const lastNameCheck = checkLastName(user.last_name)
+    if (lastNameCheck !== undefined) return lastNameCheck
+
+    return undefined
+}
