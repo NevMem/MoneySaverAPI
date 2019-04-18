@@ -635,8 +635,8 @@ db.connect().then(() => {
             firstName = req.body.firstName
             lastName = req.body.lastName
         }
-        deb_log(JSON.stringify(user), '/api/register')
         const user = { login, password, first_name: firstName, last_name: lastName }
+        deb_log(JSON.stringify(user), '/api/register')
         const validation = utils.validiateUser(user)
         deb_log('Validation: ' + validation)
         if (validation !== undefined) {
