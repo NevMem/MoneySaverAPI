@@ -450,7 +450,8 @@ exports.register = user => {
                 db.collection('users').insertOne(user)
                     .then(res => {
                         if (res.result.n == 1) {
-                            resolve()
+                            const token = jwt.sign({ login: login, first_name: response[0].first_name, last_name: response[0].last_name }, process.env.jwt_secret)
+                            resolve({ login: user.login, token, first_name: user.first_name, last_name: user.last_name })
                         } else {
                             reject('Server error happened')
                         }

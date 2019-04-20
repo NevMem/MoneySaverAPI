@@ -643,8 +643,8 @@ db.connect().then(() => {
             res.send({ type: 'error', error: validation })
         } else {
             db.register(user)
-                .then(() => {
-                    res.send({ type: 'ok', data: 'You\'ve been successfully registered' })
+                .then((data) => {
+                    res.send({ type: 'ok', data: data })
                 })
                 .catch(error => {
                     err_log(error)
