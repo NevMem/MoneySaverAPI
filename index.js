@@ -79,6 +79,7 @@ db.connect().then(() => {
             tags = req.body.tags, 
             id = req.body.id,
             daily = req.body.daily
+        if (tags === undefined) tags = [ req.body.tag ]
         const validation = utils.validateRecord({ name, date, value, wallet, login, tags, daily })
 
         deb_log(`name: ${name}, value: ${value}, wallet: ${wallet}, login: ${login}, id: ${id}\nvalidation: ${validation}`, 'api/edit')
