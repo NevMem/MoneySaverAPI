@@ -173,6 +173,26 @@ db.connect().then(() => {
             })
     })
 
+    app.post('/api/addWallet', (req, res) => {
+        const { token, login, walletName } = req.body
+        deb_log(`login: ${login}, tag name: ${walletName}`, 'api/addTag')
+        db.addWallet(token, login, walletName)
+            .then(data => {
+                deb_log(`add wallet response: ${data}`)
+                res.send({
+                    type: 'ok',
+                    data: data,
+                })
+            })
+            .catch(err => {
+                err_log(error, 'api/addWallet')
+                res.send({
+                    type: 'error',
+                    error: err,
+                })
+            })
+    })
+
     app.post('/api/createTemplate', (req, res) => {
         const { token, login, name, value, tag, wallet } = req.body
         let template = {

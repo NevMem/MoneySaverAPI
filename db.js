@@ -141,7 +141,7 @@ function addWallet(db, login, walletName) {
         if (typeof(walletName) !== 'string' || walletName.length == 0) {
             reject('invalid wallet name')
         } else {
-            db.collection('wallets').insertOne({ owner: login, tagName: walletName }, (err, data) => {
+            db.collection('wallets').insertOne({ owner: login, walletName: walletName }, (err, data) => {
                 if (err) {
                     console.log(err)
                     reject('Error happened, please try later')
