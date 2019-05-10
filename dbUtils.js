@@ -215,15 +215,15 @@ async function applyTransformToCollection(db_url, db_name, collectionName, trans
     client.close()
 }
 
-async function work() {
-    await makeBackup(db_url, 'moneysaverdb', 'data', 'backup.json')
-    // await applyTransformToCollection(db_url, 'moneysaverdb', 'data', (data) => {
-    //     return Object.assign(data, { daily: true })
-    // })
+let db_url = process.env.db_url.replace('<dbuser>', process.env.db_user).replace('<dbpassword>', process.env.db_password)
+async function backupCollections(collections) {
+    for (collection of collections) {
+        await makeBackup(db_url, 'moneysaverdb', collection, `backup-${collection}.json`)
+    }
 }
 
-let db_url = process.env.db_url.replace('<dbuser>', process.env.db_user).replace('<dbpassword>', process.env.db_password)
-work()
+backupCollections([ 'data', 'wallets', 'tags', 'users', 'templates' ])
+
 // makeBackup(db_url, 'moneysaverdb', 'backup.json')
 // restoreFromBackup(db_url, 'moneysaverdb', 'backup.json').then(() => {
 //     console.log('  Restored  '.bgGreen.black)
