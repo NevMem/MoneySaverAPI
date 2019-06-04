@@ -168,11 +168,11 @@ db.connect().then(() => {
                     data: data,
                 })
             })
-            .catch(err => {
+            .catch(error => {
                 err_log(error, 'api/addTag')
                 res.send({
                     type: 'error',
-                    error: err,
+                    error: error,
                 })
             })
     })
@@ -188,11 +188,11 @@ db.connect().then(() => {
                     data: data,
                 })
             })
-            .catch(err => {
+            .catch(error => {
                 err_log(error, 'api/addWallet')
                 res.send({
                     type: 'error',
-                    error: err,
+                    error: error,
                 })
             })
     })
