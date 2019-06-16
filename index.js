@@ -58,6 +58,10 @@ db.connect().then(() => {
         res.sendFile(__dirname + '/public/privacy.txt')
     })
 
+    app.post('/privacy', (_, res) => {
+        res.sendFile(__dirname + '/public/privacy.txt')
+    })
+
     app.post('/api/login', (req, res) => {
         let login = req.body.login, password = req.body.password
 
