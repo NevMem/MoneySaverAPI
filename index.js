@@ -732,6 +732,28 @@ db.connect().then(() => {
         })
     })
 
+    app.post('/api/removeTag', (req, req) => {
+        let url = '/api/removeTag'
+
+        let token = req.body.token, login = req.body.login, tagName = req.body.tagName
+        deb_log(`Removing tag with name: ${tagName}, login: ${login}`, url)
+        db.removeTag(token, login, tagName)
+            .then(data => {
+                deb_log(data, url)
+                res.send({
+                    type: 'ok',
+                    data: data
+                })
+            })
+            .catch(err => {
+                err_log(err, url)
+                res.send({
+                    type: 'error',
+                    error: err
+                })
+            })
+    })
+
     app.use((req, res, next) => {
         res.status(404).send('<h1>404 error path not found</h1>')
         next()

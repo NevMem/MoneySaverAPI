@@ -110,6 +110,21 @@ exports.remove = (token, login, record_id) => {
     })
 }
 
+exports.removeTag = (token, login, tagName) => {
+    return checkToken(token, login)
+        .then(() => db.collection('tags').deleteOne({ login: login, tagName: tagName }))
+        .then(data => {
+            if (data.result.n === 1) {
+                return Promise.resolve('Removed successfully')
+            } else {
+                return Promise.reject('Not found')
+            }
+        })
+        .catch(err => {
+            reject(err)
+        })
+}
+
 function getUserTags(db, login) {
     return new Promise((resolve, reject) => {
         db.collection('tags').find({ owner: login }).toArray((err, data) => {
