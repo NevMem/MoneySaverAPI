@@ -732,7 +732,7 @@ db.connect().then(() => {
         })
     })
 
-    app.post('/api/removeTag', (req, req) => {
+    app.post('/api/removeTag', (req, res) => {
         let url = '/api/removeTag'
 
         let token = req.body.token, login = req.body.login, tagName = req.body.tagName
