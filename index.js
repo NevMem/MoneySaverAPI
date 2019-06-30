@@ -403,6 +403,7 @@ db.connect().then(() => {
             amountOfDays: 0,
             average: 0,
             dailySum: 0,
+            dailyAverage: 0,
         }
 
         if (options.info30) {
@@ -538,8 +539,11 @@ db.connect().then(() => {
 
         info.totalSpend = beautifyFloat(info.totalSpend)
         info.amountOfDays = differentDays.size
-        if (info.amountOfDays != 0)
+        info.dailySum = beautifyFloat(info.dailySum)
+        if (info.amountOfDays != 0) {
             info.average = beautifyFloat(info.totalSpend / info.amountOfDays)
+            info.dailyAverage = beautifyFloat(info.dailySum / info.amountOfDays)
+        }
 
         return info
     }
