@@ -754,6 +754,28 @@ db.connect().then(() => {
             })
     })
 
+    app.post('/api/removeWallet', (req, res) => {
+        let url = '/api/removeWallet'
+
+        let token = req.body.token, login = req.body.login, walletName = req.body.walletName
+        deb_log(`Removing wallet with name: ${tagName}, login: ${login}`, url)
+        db.removeTag(token, login, walletName)
+            .then(data => {
+                deb_log(data, url)
+                res.send({
+                    type: 'ok',
+                    data: data
+                })
+            })
+            .catch(err => {
+                err_log(err, url)
+                res.send({
+                    type: 'error',
+                    error: err
+                })
+            })
+    })
+
     app.use((req, res, next) => {
         res.status(404).send('<h1>404 error path not found</h1>')
         next()

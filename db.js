@@ -112,7 +112,7 @@ exports.remove = (token, login, record_id) => {
 
 exports.removeTag = (token, login, tagName) => {
     return checkToken(token, login)
-        .then(() => db.collection('tags').deleteOne({ login: login, tagName: tagName }))
+        .then(() => db.collection('tags').deleteOne({ owner: login, tagName: tagName }))
         .then(data => {
             if (data.result.n === 1) {
                 return Promise.resolve('Removed successfully')
@@ -121,7 +121,22 @@ exports.removeTag = (token, login, tagName) => {
             }
         })
         .catch(err => {
-            reject(err)
+            return Promise.reject(err)
+        })
+}
+
+exports.removeWallet = (token, login, walletName) => {
+    return checkToken(token, login)
+        .then(() => db.collection('wallets').deleteOne({ owner: login, walletName: walletName }))
+        .then(data => {
+            if (data.result.n === 1) {
+                return Promise.resolve('Removed successfully')
+            } else {
+                return Promise.reject('Not found')
+            }
+        })
+        .catch(err => {
+            return Promise.reject(err)
         })
 }
 
